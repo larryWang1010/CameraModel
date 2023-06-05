@@ -1,16 +1,20 @@
-#include "abstract_camera.hpp"
-#include "MEI_camera.hpp"
-#include "pinhole_camera.hpp"
-#include <chrono>
-#include <string>
 #include <algorithm>
+#include <chrono>
 #include <opencv2/ccalib/omnidir.hpp>
+#include <random>
+#include <string>
+
+#include "MEI_camera.hpp"
+#include "abstract_camera.hpp"
+#include "pinhole_camera.hpp"
 
 using namespace camera_model;
 
 // random engine
 static std::mt19937_64 rd;
-static std::uniform_real_distribution<double> distribution(0.0, std::nextafter(1, std::numeric_limits<double>::max()));
+// static std::uniform_real_distribution<double> distribution(0.0, std::nextafter(1,
+// std::numeric_limits<double>::max()));
+static std::uniform_real_distribution<> distribution(0.0, std::nextafter(1, std::numeric_limits<double>::max()));
 
 inline int Rand(int min, int max)
 { return (((double)distribution(rd) * (max - min + 1))) + min;}

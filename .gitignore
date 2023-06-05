@@ -1,7 +1,11 @@
-*.bin
-*.ipch
-*.json
-build
-log
+build/*
+*.vscode
+cmake-build-debug/*
+build*
+cmake-build*
+.idea
+*.history*
+*install/*
 bin
-bin/test
+# lib
+__pycache__

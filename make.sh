@@ -1,0 +1,1 @@
+./bin/test ./calib/cam0_tumvio_mei.yaml ./data/1.png

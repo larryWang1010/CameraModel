@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.16)
 project(camera_model)
 
 # Build setting
@@ -10,8 +10,10 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-# C++ 11
-add_definitions(-std=c++11)
+# set complier arguements 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC ${COMPILER_WARNINGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations -Wno-deprecated-declarations")
 
 # Debug and log messages
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -21,21 +23,15 @@ endif(CMAKE_BUILD_TYPE MATCHES "Debug")
 # cmake modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# OpenCV Library
-find_package(OpenCV 3.2.0 REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
+# library: OpenCV Eigen glog
+find_package(OpenCV 3.4.3 REQUIRED)
+find_package(Eigen3 REQUIRED)       
+find_package(Glog 0.3.5 REQUIRED)   
 
-# Eigen Library
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
-
-# glog
-find_package(Glog 0.3.5 REQUIRED)
-
-# include
 include_directories(
-    ${PROJECT_SOURCE_DIR}/include
-)
+    ${EIGEN3_INCLUDE_DIR}
+    ${OpenCV_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/include)
 
 # add librarys
 set(LINK_LIBS ${OpenCV_LIBS} ${GLOG_LIBRARY})
