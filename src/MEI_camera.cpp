@@ -96,12 +96,12 @@ MEICamera::MEICamera(std::string calib_file) :
 }
 
 // 像素坐标转单位球面（unit sphere）
-Eigen::Vector3d MEICamera::unproject(double x, double y) const {
+Eigen::Vector3d MEICamera::unproject(double x_pix, double y_pix) const {
     Eigen::Vector3d xyz(0, 0, 1);
     if(distortion_)
     {
         std::vector<cv::Point2f> pt_d, pt_u;
-        pt_d.push_back(cv::Point2f(x,y));
+        pt_d.push_back(cv::Point2f(x_pix, y_pix));
         undistortPoints(pt_d, pt_u); 
         assert(pt_u.size() == 1);
         xyz[0] = (pt_u[0].x - cx_) / fx_;
@@ -109,8 +109,8 @@ Eigen::Vector3d MEICamera::unproject(double x, double y) const {
     } 
     else
     {
-        xyz[0] = (x - cx_) / fx_;
-        xyz[1] = (y - cy_) / fy_;
+        xyz[0] = (x_pix - cx_) / fx_;
+        xyz[1] = (y_pix - cy_) / fy_;
     }
 
     double x_u = xyz[0], y_u = xyz[1], lambda;
@@ -129,7 +129,7 @@ Eigen::Vector3d MEICamera::unproject(double x, double y) const {
     return xyz;
 }
 
-Eigen::Vector3d MEICamera::unproject(const Eigen::Vector2d& px) const { return unproject(px[0], px[1]); }
+Eigen::Vector3d MEICamera::unproject(const Eigen::Vector2d& pix) const { return unproject(pix[0], pix[1]); }
 
 Eigen::Vector2d MEICamera::project(double x, double y, double z) const
 {

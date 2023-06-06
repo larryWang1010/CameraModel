@@ -100,12 +100,12 @@ PinholeCamera::PinholeCamera(std::string calib_file) :
 }
 
 // 像素坐标转单位平面
-Vector3d PinholeCamera::unproject(double px, double py) const {
+Vector3d PinholeCamera::unproject(double x_pix, double y_pix) const {
     Vector3d xyz(0, 0, 1);
     if(distortion_)
     {
         std::vector<cv::Point2f> pix, pix_undistort;
-        pix.push_back(cv::Point2f(px, py));
+        pix.push_back(cv::Point2f(x_pix, y_pix));
         undistortPoints(pix, pix_undistort);  // 函数要求两通道来表示点
         assert(pix_undistort.size() == 1);
         xyz[0] = (pix_undistort[0].x - cx_) / fx_;
@@ -113,14 +113,14 @@ Vector3d PinholeCamera::unproject(double px, double py) const {
     }
     else
     {
-        xyz[0] = (px - cx_) / fx_;
-        xyz[1] = (py - cy_) / fy_;
+        xyz[0] = (x_pix - cx_) / fx_;
+        xyz[1] = (y_pix - cy_) / fy_;
     }
 
     return xyz;
 }
 
-Vector3d PinholeCamera::unproject(const Vector2d& px) const { return unproject(px[0], px[1]); }
+Vector3d PinholeCamera::unproject(const Vector2d& pix) const { return unproject(pix[0], pix[1]); }
 
 // 单位平面转像素坐标
 Vector2d PinholeCamera::project(double x, double y, double z) const

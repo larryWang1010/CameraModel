@@ -14,9 +14,9 @@ public:
 
     typedef std::shared_ptr<PinholeCamera> Ptr;
 
-    virtual Vector3d unproject(const Vector2d& px) const;
+    virtual Vector3d unproject(const Vector2d& pix) const;
 
-    virtual Vector3d unproject(double x, double y) const;
+    virtual Vector3d unproject(double x_pix, double y_pix) const;
 
     virtual Vector2d project(const Vector3d& xyz) const;
 
