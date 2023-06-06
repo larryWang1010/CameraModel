@@ -215,7 +215,7 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
 
 #ifdef ENABLE_DEBUG
         double alpha = 0.0;
-        // TODO 没太明白为什么要获取新的内参？
+        // TODO 没太明白为什么要获取一个新的内参？
         K_new = cv::getOptimalNewCameraMatrix(K_, D_, cv::Size(width_, height_), alpha);
 #else
         cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new,

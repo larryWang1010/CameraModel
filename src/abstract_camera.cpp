@@ -48,7 +48,7 @@ Vector3d AbstractCamera::unproject(const Vector2d& px) const { LOG(FATAL) << "Pl
 
 Vector3d AbstractCamera::unproject(double x, double y) const { LOG(FATAL) << "Please instantiation!!!"; }
 
-//@ from camera coordinate to pixel coordiante
+//@ from camera coordinate to pixel coordinate
 Vector2d AbstractCamera::project(const Vector3d& xyz) const
 {
     LOG(FATAL) << "Please instantiation!!!";

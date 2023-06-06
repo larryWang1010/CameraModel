@@ -57,6 +57,10 @@ The images are stored in `data` folder.
 
 ## REFERENCE
 
+Author Blog: https://blog.csdn.net/darlingqiang/article/details/111559053
+
+几篇经典的相机模型论文
+
 1. kb4模型
 ```
 J. Kannala and S. Brandt (2006). A Generic Camera Model and Calibration Method for Conventional, Wide-Angle, and Fish-Eye Lenses, IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 28, no. 8, pp. 1335-1340
