@@ -25,7 +25,7 @@ public:
     //! all undistort points are in the normlized plane
     virtual void undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const;
 
-    virtual void undistortMat(const cv::Mat &img_dist, cv::Mat &img_udist) const;
+    virtual void undistortImage(const cv::Mat& img_dist, cv::Mat& img_udist) const;
 
     inline static PinholeCamera::Ptr create(int width, int height, double fx, double fy, double cx, double cy, double k1 = 0.0, double k2 = 0.0, double p1 = 0.0, double p2 = 0.0)
     {return PinholeCamera::Ptr(new PinholeCamera(width, height, fx, fy, cx, cy, k1, k2, p1, p2));}

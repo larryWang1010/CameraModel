@@ -160,8 +160,8 @@ void PinholeCamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist,
     cv::fisheye::undistortPoints(pts_dist, pts_udist, K_, D_);  // 返回的是单位平面的，而不是图像上的。
     int i = 0;
     for (auto it : pts_udist) {
-        double pix_u = fx() * it.x + cx();
-        double pix_v = fy() * it.y + cy();
+        double pix_u = getFx() * it.x + getCx();
+        double pix_v = getFy() * it.y + getCy();
 
         pts_udist[i].x = pix_u;
         pts_udist[i].y = pix_v;
@@ -172,8 +172,8 @@ void PinholeCamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist,
     for (auto it : pts_dist) {
         double x_dist, y_dist, r, theta, theta2, theta4, theta6, theta8, thetad, scaling_inv;
         double x_corr, y_corr;
-        x_dist = (it.x - cx()) / fx();
-        y_dist = (it.y - cy()) / fy();
+        x_dist = (it.x - getCx()) / getFx();
+        y_dist = (it.y - getCy()) / getFy();
 
         x_corr = x_dist;
         y_corr = x_dist;
@@ -202,7 +202,7 @@ void PinholeCamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist,
 #endif
 }
 
-void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) const {
+void PinholeCamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) const {
 #ifdef ENABLE_OPENCV
     cv::Mat map1, map2, K_new;
     // TODO 没太明白为什么要获取一个新的内参？
@@ -230,7 +230,7 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
     std::vector<cv::Point2f> points_sample, points_sample_undist;
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++) {
-            points_sample.push_back(cv::Point2f((float)j * width() / (N - 1), (float)i * height() / (N - 1)));
+            points_sample.push_back(cv::Point2f((float)j * getWidth() / (N - 1), (float)i * getHeight() / (N - 1)));
         }
     undistortPoints(points_sample, points_sample_undist);
 
@@ -251,8 +251,8 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
         }
     }
     double fx_new, fy_new, cx_new, cy_new;
-    fx_new = width() / (u_1 - u_0);
-    fy_new = height() / (v_1 - v_0);
+    fx_new = getWidth() / (u_1 - u_0);
+    fy_new = getHeight() / (v_1 - v_0);
     cx_new = -fx_new * (u_0);
     cy_new = -fy_new * (v_0);
 #ifdef ENABLE_DEBUG
@@ -288,17 +288,18 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
             maxy = std::max(maxy, std::abs(points_sample_undist[i * N + j].y - mean_y));
         }
 
-    double f1 = width() * 0.5 / (minx);
-    // double f2 = width() * 0.5/(maxx);
-    double f3 = height() * 0.5 * aspect_ratio / (miny);
-    // double f4 = height() * 0.5 * aspect_ratio/(maxy);
+    double f1 = getWidth() * 0.5 / (minx);
+    // double f2 = getWidth() * 0.5/(maxx);
+    double f3 = getHeight() * 0.5 * aspect_ratio / (miny);
+    // double f4 = getHeight() * 0.5 * aspect_ratio/(maxy);
 
-    double f_max, fx_new, fy_new, cx_new, cy_new;
+    double f_max;
+    // double fx_new, fy_new, cx_new, cy_new;
     f_max = std::max(f1, f3);
     fx_new = f_max;
     fy_new = f_max / aspect_ratio;
-    cx_new = -mean_x * fx_new + width() * 0.5;
-    cy_new = -mean_y * fy_new + height() * 0.5;
+    cx_new = -mean_x * fx_new + getWidth() * 0.5;
+    cy_new = -mean_y * fy_new + getHeight() * 0.5;
 
     LOG(INFO) << "mean_x " << mean_x << " "
               << "points_sample_undist[0].x " << points_sample_undist[0].x;

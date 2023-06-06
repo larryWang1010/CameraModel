@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     // test undistort points with 10 random pixels on image
     for(int i=0; i<10; i++)
     {
-       pts_dist.push_back(cv::Point2i(Rand(10, camera->width()-10), Rand(10, camera->height()-10) ) );        
+        pts_dist.push_back(cv::Point2i(Rand(10, camera->getWidth() - 10), Rand(10, camera->getHeight() - 10)));
     }
     
     // write log
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     // by camera model
     // 验证两个事情 1. 添加畸变的特征点，进行矫正，查看结果 2. 矫正畸变图像
     camera->undistortPoints(pts_dist, pts_undist);
-    camera->undistortMat(src, dst);
+    camera->undistortImage(src, dst);
 
     std::string message_undistpoint = "Undistorted Point by Mine";
     writePointsToLog(pts_undist, message_undistpoint);
@@ -129,7 +129,8 @@ int main(int argc, char *argv[])
 #ifdef ENABLE_DEBUG
     if(AbstractCamera::Model::MEI == model)
     {
-        undistortOmniByOpencv(src, pts_dist, camera->K(), camera->D(), camera->xi(), camera->width(), camera->height());
+        undistortOmniByOpencv(src, pts_dist, camera->getK(), camera->getD(), camera->xi(), camera->getWidth(),
+                              camera->getHeight());
     }
 #endif
 

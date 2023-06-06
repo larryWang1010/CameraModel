@@ -53,23 +53,23 @@ public:
 
     static Model checkCameraModel(std::string calib_file);
 
-    inline const int width() const { return width_; }
+    inline const int getWidth() const { return width_; }
 
-    inline const int height() const { return height_; }
+    inline const int getHeight() const { return height_; }
 
-    inline const double fx() const { return fx_; };
+    inline const double getFx() const { return fx_; };
 
-    inline const double fy() const { return fy_; };
+    inline const double getFy() const { return fy_; };
 
-    inline const double cx() const { return cx_; };
+    inline const double getCx() const { return cx_; };
 
-    inline const double cy() const { return cy_; };
+    inline const double getCy() const { return cy_; };
 
-    inline const cv::Mat K() const { return K_; };
+    inline const cv::Mat getK() const { return K_; };
 
-    inline const cv::Mat D() const { return D_; };
+    inline const cv::Mat getD() const { return D_; };
 
-    inline const Model model() const { return model_; }
+    inline const Model getCamModel() const { return model_; }
 
     virtual const double xi() const;
 
@@ -83,20 +83,20 @@ public:
 
     virtual void undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const;
 
-    virtual void undistortMat(const cv::Mat &img_dist, cv::Mat &img_udist) const;
+    virtual void undistortImage(const cv::Mat& img_dist, cv::Mat& img_udist) const;
 
     inline bool isInFrame(const Vector2d &obs, int boundary=0) const
     {
-        if(obs[0] >= boundary && obs[0] < width() - boundary
-            && obs[1] >= boundary && obs[1] < height() - boundary)
+        if (obs[0] >= boundary && obs[0] < getWidth() - boundary && obs[1] >= boundary &&
+            obs[1] < getHeight() - boundary)
             return true;
         return false;
     }
 
     inline bool isInFrame(const Vector2d &obs, int boundary, int level) const
     {
-        if(obs[0] >= boundary && obs[0] < (width() >> level) - boundary
-            && obs[1] >= boundary && obs[1] < (height() >> level) - boundary)
+        if (obs[0] >= boundary && obs[0] < (getWidth() >> level) - boundary && obs[1] >= boundary &&
+            obs[1] < (getHeight() >> level) - boundary)
             return true;
         return false;
     }

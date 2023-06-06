@@ -1,21 +1,16 @@
 #include "abstract_camera.hpp"
 
-namespace camera_model
-{
+namespace camera_model {
 
 //@ build
-AbstractCamera::AbstractCamera() :
-        model_(ABSTRACT) {}
+AbstractCamera::AbstractCamera() : model_(ABSTRACT) {}
 
-AbstractCamera::AbstractCamera(Model model) :
-        model_(model) {}
+AbstractCamera::AbstractCamera(Model model) : model_(model) {}
 
-AbstractCamera::AbstractCamera(int width, int height, Model type) :
-        model_(type), width_(width), height_(height) {}
+AbstractCamera::AbstractCamera(int width, int height, Model type) : model_(type), width_(width), height_(height) {}
 
-AbstractCamera::AbstractCamera(int width, int height, double fx, double fy, double cx, double cy, Model model) :
-        model_(model), width_(width), height_(height), fx_(fx), fy_(fy), cx_(cx), cy_(cy)
-{
+AbstractCamera::AbstractCamera(int width, int height, double fx, double fy, double cx, double cy, Model model)
+    : model_(model), width_(width), height_(height), fx_(fx), fy_(fy), cx_(cx), cy_(cy) {
     K_ = cv::Mat::eye(3,3,CV_64FC1);
     K_.at<double>(0,0) = fx_;
     K_.at<double>(0,2) = cx_;
@@ -24,8 +19,7 @@ AbstractCamera::AbstractCamera(int width, int height, double fx, double fy, doub
 }
 
 //@ get camera model
-AbstractCamera::Model AbstractCamera::checkCameraModel(std::string calib_file)
-{
+AbstractCamera::Model AbstractCamera::checkCameraModel(std::string calib_file) {
     cv::FileStorage fs(calib_file.c_str(), cv::FileStorage::READ);
     LOG_ASSERT(fs.isOpened()) << "Failed to open calibration file at: " << calib_file;
 
@@ -49,31 +43,21 @@ Vector3d AbstractCamera::unproject(const Vector2d& px) const { LOG(FATAL) << "Pl
 Vector3d AbstractCamera::unproject(double x, double y) const { LOG(FATAL) << "Please instantiation!!!"; }
 
 //@ from camera coordinate to pixel coordinate
-Vector2d AbstractCamera::project(const Vector3d& xyz) const
-{
-    LOG(FATAL) << "Please instantiation!!!";
-}
+Vector2d AbstractCamera::project(const Vector3d& xyz) const { LOG(FATAL) << "Please instantiation!!!"; }
 
 //@ from unit plane to pixel coordinate
-Vector2d AbstractCamera::project(double x, double y, double z) const
-{
-    LOG(FATAL) << "Please instantiation!!!";
-}
+Vector2d AbstractCamera::project(double x, double y, double z) const { LOG(FATAL) << "Please instantiation!!!"; }
 
 //@ remove distortion in points
-void AbstractCamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const
-{
+void AbstractCamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist,
+                                     std::vector<cv::Point2f>& pts_udist) const {
     LOG(FATAL) << "Please instantiation!!!";
 }
 
 //@ remove distortion on images
-void AbstractCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_udist) const
-{
+void AbstractCamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_udist) const {
     LOG(FATAL) << "Please instantiation!!!";
 }
 
-inline const double AbstractCamera::xi() const
-{
-    LOG(FATAL) << "Please instantiation!!!";
-}
-}
+inline const double AbstractCamera::xi() const { LOG(FATAL) << "Please instantiation!!!"; }
+}  // namespace camera_model

@@ -176,8 +176,8 @@ void MEICamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::v
         {
             double x_dist, y_dist, r2, r4, a1, a2, a3, cdest_inv, deltaX, deltaY;
             double x_corr, y_corr;
-            x_dist = (it.x - cx()) / fx();
-            y_dist = (it.y - cy()) / fy();
+            x_dist = (it.x - getCx()) / getFx();
+            y_dist = (it.y - getCy()) / getFy();
 
             x_corr = x_dist;
             y_corr = y_dist;
@@ -211,18 +211,17 @@ void MEICamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::v
 }
 
 //TODO, difference between remap or not
-void MEICamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist ) const
-{
+void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) const {
     cv::Size image_size(width_, height_);
     
     assert(img_dist.type() == CV_8UC1);
     img_undist = cv::Mat(height_, width_, img_dist.type());
 
-    cv::Mat K_new = K();
-    K_new.at<double>(0,0) = width()/4;
-    K_new.at<double>(0,2) = width()/2;
-    K_new.at<double>(1,1) = height()/4;
-    K_new.at<double>(1,2) = height()/2;
+    cv::Mat K_new = getK();
+    K_new.at<double>(0, 0) = getWidth() / 4;
+    K_new.at<double>(0, 2) = getWidth() / 2;
+    K_new.at<double>(1, 1) = getHeight() / 4;
+    K_new.at<double>(1, 2) = getHeight() / 2;
 
     cv::Mat mapX = cv::Mat::zeros(image_size, CV_32F);
     cv::Mat mapY = cv::Mat::zeros(image_size, CV_32F);
