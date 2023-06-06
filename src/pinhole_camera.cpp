@@ -212,17 +212,15 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
     if (0)  // use opencv
     {
         cv::Mat map1, map2, K_new;
-
-#ifdef ENABLE_DEBUG
-        double alpha = 0.0;
         // TODO 没太明白为什么要获取一个新的内参？
-        K_new = cv::getOptimalNewCameraMatrix(K_, D_, cv::Size(width_, height_), alpha);
-#else
+        // double alpha = 0.0;
+        // K_new = cv::getOptimalNewCameraMatrix(K_, D_, cv::Size(width_, height_), alpha);
         cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new,
                                                                 0.f);
+#ifdef ENABLE_DEBUG
+        std::cout << "K_ " << K_ << std::endl;
+        std::cout << "K_new " << K_new << std::endl;
 #endif
-        // std::cout << "K_ " << K_ << std::endl;
-
         // 以下两条语句的组合等同于下边调用cv::fisheye::undistortImage
         cv::fisheye::initUndistortRectifyMap(K_, D_, Mat(), K_new, cv::Size(width_, height_), CV_16SC2, map1, map2);
         cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);
@@ -252,7 +250,7 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
                   << K_new.at<double>(1, 1) << ", " << K_new.at<double>(0, 2) << ", " << K_new.at<double>(1, 2);
 #endif
 
-// 以下两种方法都可。。。
+        // 以下两种方法都可。。。
 
         //! ******************************* 这是 Radtan 的计算方法（cv::）*******************************
         // 这里取最小的一圈， 也可以取最大的, how to calculate new intern parameters?
@@ -278,7 +276,11 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
         fy_new = height() / (v_1 - v_0);
         cx_new = -fx_new * (u_0) ;
         cy_new = -fy_new * (v_0) ;
+
+#ifdef ENABLE_DEBUG
+        LOG(INFO) << "u0 u1 v0 v1 " << u_0 << " " << u_1 << " " << v_0 << " " << v_1;
         LOG(INFO) << "New fx, fy, cx, cy " << fx_new << " " << fy_new << " " << cx_new << " " << cy_new;
+#endif
 
         //! **********************这是 EQUI 的计算方法（cv::fisheye)**********************
         /* {

@@ -145,9 +145,10 @@ int main(int argc, char *argv[])
 #ifdef _DEBUG_MODE_    
     std::cout<<"front" <<name_front <<", back" << name_back<<std::endl;;
 #endif
-
+#ifdef ENABLE_VISUAL
     cv::imshow("OriginalImage", src);
     cv::imshow("UndistByMine", dst);
-    cv::imwrite(name_out.c_str(),dst); // 输出图片
-    cv::waitKey(0);
+    cv::waitKey(10);
+#endif
+    cv::imwrite(name_out.c_str(), dst);  // 输出图片
 }
