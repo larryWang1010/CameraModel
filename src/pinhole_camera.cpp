@@ -220,8 +220,10 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
         cv::Mat map1, map2, K_new;
         // cv::getOptimalNewCameraMatrix()
         cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new, 0.f);
+#ifdef ENABLE_DEBUG
         std::cout << "K_ " << K_ << std::endl;
         std::cout << "K_new " << K_new << std::endl;
+#endif
         // 以下两条语句的组合可以等同为  cv::undistort
         cv::fisheye::initUndistortRectifyMap(K_, D_, Mat(), K_new, cv::Size(width_, height_), CV_16SC2, map1, map2);
         cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);
