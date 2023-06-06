@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;
     FLAGS_log_prefix = true;
-    FLAGS_log_dir = std::string(getcwd(NULL,0))+"/log/";
+    FLAGS_log_dir = std::string(getcwd(NULL, 0)) + "/log/";
     google::InitGoogleLogging(argv[0]);
 
     LOG_ASSERT(argc == 3) << "\n Usage : ./test calib_file image_file";
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
     std::cout << "front" << name_front << ", back" << name_back << std::endl;
     cv::imshow("OriginalImage", src);
     cv::imshow("UndistByMine", dst);
-    cv::waitKey(10);
+    cv::waitKey();
 #endif
 
     std::string name_out = name_front + "_undist_" + model_name + name_back;
