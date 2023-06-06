@@ -17,16 +17,24 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations -Wno-
 
 option(BUILD_ENABLE_DEBUG "Enable debug mode" ON)
 option(BUILD_ENABLE_VISUAL "Enable visualization mode" OFF)
+option(BUILD_ENABLE_OPENCV "Enable using opencv" OFF)
+# debug
 if(BUILD_ENABLE_DEBUG)
     add_definitions(-DENABLE_DEBUG)
 else()
     remove_definitions(-DENABLE_DEBUG)
 endif()
-
+# visual
 if(BUILD_ENABLE_VISUAL)
     add_definitions(-DENABLE_VISUAL)
 else()
     remove_definitions(-DENABLE_VISUAL)
+endif()
+# use opencv
+if(BUILD_ENABLE_OPENCV)
+    add_definitions(-DENABLE_OPENCV)
+else()
+    remove_definitions(-DENABLE_OPENCV)
 endif()
 # Debug and log messages
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
