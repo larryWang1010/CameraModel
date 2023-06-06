@@ -73,9 +73,9 @@ public:
 
     virtual const double xi() const;
 
-    virtual Vector3d lift(const Vector2d& px) const;
+    virtual Vector3d unproject(const Vector2d& px) const;
 
-    virtual Vector3d lift(double x, double y) const;
+    virtual Vector3d unproject(double x, double y) const;
 
     virtual Vector2d project(const Vector3d& xyz) const;
 

@@ -100,7 +100,7 @@ PinholeCamera::PinholeCamera(std::string calib_file) :
 }
 
 // 像素坐标转单位平面
-Vector3d PinholeCamera::lift(double px, double py) const {
+Vector3d PinholeCamera::unproject(double px, double py) const {
     Vector3d xyz(0, 0, 1);
     if(distortion_)
     {
@@ -120,10 +120,7 @@ Vector3d PinholeCamera::lift(double px, double py) const {
     return xyz;
 }
 
-Vector3d PinholeCamera::lift(const Vector2d &px) const
-{
-    return lift(px[0], px[1]);
-}
+Vector3d PinholeCamera::unproject(const Vector2d& px) const { return unproject(px[0], px[1]); }
 
 // 单位平面转像素坐标
 Vector2d PinholeCamera::project(double x, double y, double z) const

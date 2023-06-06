@@ -43,24 +43,18 @@ AbstractCamera::Model AbstractCamera::checkCameraModel(std::string calib_file)
         return UNKNOW;
 }
 
-//@ from pixel coordiante to unit plane
-Vector3d AbstractCamera::lift(const Vector2d& px) const
-{
-    LOG(FATAL) << "Please instantiation!!!";
-}
+//@ from pixel coordinate to unit plane(as well as normalized coordinate)
+Vector3d AbstractCamera::unproject(const Vector2d& px) const { LOG(FATAL) << "Please instantiation!!!"; }
 
-Vector3d AbstractCamera::lift(double x, double y) const
-{
-    LOG(FATAL) << "Please instantiation!!!";
-}
+Vector3d AbstractCamera::unproject(double x, double y) const { LOG(FATAL) << "Please instantiation!!!"; }
 
-//@ from camera coordiante to pixel coordiante
+//@ from camera coordinate to pixel coordiante
 Vector2d AbstractCamera::project(const Vector3d& xyz) const
 {
     LOG(FATAL) << "Please instantiation!!!";
 }
 
-//@ from unit plane to pixel coordiante
+//@ from unit plane to pixel coordinate
 Vector2d AbstractCamera::project(double x, double y, double z) const
 {
     LOG(FATAL) << "Please instantiation!!!";

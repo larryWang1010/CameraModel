@@ -96,8 +96,7 @@ MEICamera::MEICamera(std::string calib_file) :
 }
 
 // 像素坐标转单位球面（unit sphere）
-Eigen::Vector3d MEICamera::lift(double x, double y) const
-{
+Eigen::Vector3d MEICamera::unproject(double x, double y) const {
     Eigen::Vector3d xyz(0, 0, 1);
     if(distortion_)
     {
@@ -130,10 +129,7 @@ Eigen::Vector3d MEICamera::lift(double x, double y) const
     return xyz;
 }
 
-Eigen::Vector3d MEICamera::lift(const Eigen::Vector2d &px) const
-{
-    return lift(px[0], px[1]);
-}
+Eigen::Vector3d MEICamera::unproject(const Eigen::Vector2d& px) const { return unproject(px[0], px[1]); }
 
 Eigen::Vector2d MEICamera::project(double x, double y, double z) const
 {
