@@ -45,8 +45,8 @@ void undistortOmniByOpencv(cv::Mat& src, std::vector<cv::Point2f> &input_point,
     cv::Mat dst; // (src.size(), src.type());
     cv::Mat map1, map2, K_new = K;
 
-//! 这个参数太不好搞了
-    // RECTIFY_PERSPECTIVE 
+    //! 这个参数太不好搞了
+    // RECTIFY_PERSPECTIVE
     K_new.at<double>(0,0) = width;
     K_new.at<double>(0,2) = width/2;
     K_new.at<double>(1,1) = height;
@@ -58,7 +58,8 @@ void undistortOmniByOpencv(cv::Mat& src, std::vector<cv::Point2f> &input_point,
     // K_new.at<double>(1,1) = 2*height/1.6;
     // K_new.at<double>(1,2) = 0;
 
-    cv::omnidir::initUndistortRectifyMap(K, D, xi, cv::Mat(), K_new, cv::Size(2*width, height), CV_16SC2, map1, map2, cv::omnidir::RECTIFY_CYLINDRICAL);
+    cv::omnidir::initUndistortRectifyMap(K, D, xi, cv::Mat(), K_new, cv::Size(2 * width, height), CV_16SC2, map1, map2,
+                                         cv::omnidir::RECTIFY_CYLINDRICAL);
     cv::remap(src, dst, map1, map2, cv::INTER_LINEAR, BORDER_CONSTANT);
     cv::imshow("UndistByOpencv", dst);
     cv::waitKey(30);
@@ -142,10 +143,9 @@ int main(int argc, char *argv[])
 
 
     std::string name_out = name_front + "_undist_"+model_name+name_back;
-#ifdef _DEBUG_MODE_    
-    std::cout<<"front" <<name_front <<", back" << name_back<<std::endl;;
-#endif
+
 #ifdef ENABLE_VISUAL
+    std::cout << "front" << name_front << ", back" << name_back << std::endl;
     cv::imshow("OriginalImage", src);
     cv::imshow("UndistByMine", dst);
     cv::waitKey(10);

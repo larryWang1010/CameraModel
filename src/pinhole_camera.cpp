@@ -225,7 +225,7 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
     // cv::fisheye::undistortImage(img_dist, img_undist, K_, D_, K_new);
     // cv::imshow("opencv undistortImage", img_undist);
     // cv::waitKey(10);
-#endif
+#else
     //! 以下是和 K_new = K_ 一样， 说明畸变导致了相机内参有变化， 需要求出来这个变化
     assert(img_dist.type() == CV_8UC1);
     img_undist = cv::Mat(height_, width_, img_dist.type());
@@ -260,7 +260,7 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
     fy_new = height() / (v_1 - v_0);
     cx_new = -fx_new * (u_0);
     cy_new = -fy_new * (v_0);
-#ifndef ENABLE_VISUAL
+#ifndef ENABLE_DEBUG
     LOG(INFO) << "u0 u1 v0 v1 " << u_0 << " " << u_1 << " " << v_0 << " " << v_1;
     LOG(INFO) << "New fx, fy, cx, cy " << fx_new << " " << fy_new << " " << cx_new << " " << cy_new;
 #endif
@@ -385,5 +385,6 @@ void PinholeCamera::undistortMat(const cv::Mat& img_dist, cv::Mat& img_undist) c
         }
     }
 }
+#endif
 
-} // end namespace
+}  // namespace camera_model
