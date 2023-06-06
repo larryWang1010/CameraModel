@@ -1,11 +1,8 @@
 build/*
-*.vscode
-cmake-build-debug/*
-build*
-cmake-build*
+log/*
+bin/*
+.vscode/*
 .idea
 *.history*
 *install/*
-bin
-# lib
 __pycache__

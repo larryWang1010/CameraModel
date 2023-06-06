@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     std::string message_undistpoint = "Undistorted Point by Mine";
     writePointsToLog(pts_undist, message_undistpoint);
 
-#ifdef _DEBUG_MODE_
+#ifdef ENABLE_DEBUG
     if(AbstractCamera::Model::MEI == model)
     {
         undistortOmniByOpencv(src, pts_dist, camera->K(), camera->D(), camera->xi(), camera->width(), camera->height());
