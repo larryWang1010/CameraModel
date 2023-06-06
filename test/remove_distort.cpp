@@ -105,17 +105,20 @@ int main(int argc, char* argv[]) {
         pts_dist.push_back(cv::Point2i(Rand(10, camera->getWidth() - 10), Rand(10, camera->getHeight() - 10)));
     }
 
-    // write log
-    std::string message_distpoint = "pixel coordinate generate randomly";
-    writePointsToLog(pts_dist, message_distpoint);
+    ;
 
     // by camera model
     // 验证两个事情 1. 添加畸变的特征点，进行矫正，查看结果 2. 矫正畸变图像
     camera->undistortPoints(pts_dist, pts_undist);
     camera->undistortImage(src, dst);
 
+#ifdef ENABLE_DEBUG
+    // write distort pixcel points and undistort points
+    std::string message_distpoint = "pixel coordinate generate randomly";
+    writePointsToLog(pts_dist, message_distpoint);
     std::string message_undistpoint = "Undistorted Point by Mine";
     writePointsToLog(pts_undist, message_undistpoint);
+#endif
 
 #ifdef ENABLE_OPENCV
     if (AbstractCamera::Model::MEI == model) {
@@ -132,7 +135,6 @@ int main(int argc, char* argv[]) {
     }
 
 #ifdef ENABLE_VISUAL
-    std::cout << "front" << name_front << ", back" << name_back << std::endl;
     cv::imshow("OriginalImage", src);
     cv::imshow("UndistByMine", dst);
     cv::waitKey();
