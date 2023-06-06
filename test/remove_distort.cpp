@@ -17,7 +17,7 @@ static std::mt19937_64 rd;
 static std::uniform_real_distribution<> distribution(0.0, std::nextafter(1, std::numeric_limits<double>::max()));
 
 inline int Rand(int min, int max) { return (((double)distribution(rd) * (max - min + 1))) + min; }
-
+// TODO use spdlog
 // record points to Log
 void writePointsToLog(const std::vector<cv::Point2f>& input_point, const std::string message) {
     LOG(INFO) << message << " : " << std::endl;    

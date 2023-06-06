@@ -241,8 +241,9 @@ void PinholeCamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist)
     cy_new = -fy_new * (v_0);
 
 #ifdef ENABLE_DEBUG
-    LOG(INFO) << "u0 u1 v0 v1 " << u_0 << " " << u_1 << " " << v_0 << " " << v_1;
-    LOG(INFO) << "New fx, fy, cx, cy " << fx_new << " " << fy_new << " " << cx_new << " " << cy_new;
+    LOG(INFO) << "UndistortImage: u0 u1 v0 v1 [" << u_0 << " " << u_1 << " " << v_0 << " " << v_1 << "]";
+    LOG(INFO) << "UndistortImage: new fx, fy, cx, cy [" << fx_new << " " << fy_new << " " << cx_new << " " << cy_new
+              << "]";
 #endif
 
     for (int i = 0; i < height_; i++) {
