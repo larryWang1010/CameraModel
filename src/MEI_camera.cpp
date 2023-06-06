@@ -1,13 +1,10 @@
 #include "MEI_camera.hpp"
 #include <math.h>
 
-namespace camera_model
-{
-MEICamera::MEICamera(int width, int height, double xi, double fx, double fy, double cx, double cy,
-            double k1, double k2, double p1, double p2):
-            AbstractCamera(width, height, fx, fy, cx, cy, MEI),
-            xi_(xi), k1_(k1), k2_(k2), p1_(p1), p2_(p2)
-{
+namespace camera_model {
+MEICamera::MEICamera(int width, int height, double xi, double fx, double fy, double cx, double cy, double k1, double k2,
+                     double p1, double p2)
+    : AbstractCamera(width, height, fx, fy, cx, cy, MEI), xi_(xi), k1_(k1), k2_(k2), p1_(p1), p2_(p2) {
     distortion_ = (fabs(k1_) > 0.0000001);
     D_ = cv::Mat::zeros(1,4,CV_64FC1);
     D_.at<double>(0) = k1;
@@ -15,9 +12,8 @@ MEICamera::MEICamera(int width, int height, double xi, double fx, double fy, dou
     D_.at<double>(2) = p1;
     D_.at<double>(3) = p2;
 }
-MEICamera::MEICamera(int width, int height, double xi, const cv::Mat& K, const cv::Mat& D):
-            AbstractCamera(width, height, MEI), xi_(xi)
-{
+MEICamera::MEICamera(int width, int height, double xi, const cv::Mat& K, const cv::Mat& D)
+    : AbstractCamera(width, height, MEI), xi_(xi) {
     assert(K.cols == 3 && K.rows == 3);
     assert(D.cols == 4 || D.rows == 1);
     if(K.type() == CV_64FC1)
@@ -40,12 +36,10 @@ MEICamera::MEICamera(int width, int height, double xi, const cv::Mat& K, const c
     p1_ = D.at<double>(2);
     p2_ = D.at<double>(3);
 
-    distortion_ = (fabs(k1_) > 0.0000001); 
+    distortion_ = (fabs(k1_) > 0.0000001);
 }
 
-MEICamera::MEICamera(std::string calib_file) : 
-            AbstractCamera(MEI)
-{
+MEICamera::MEICamera(std::string calib_file) : AbstractCamera(MEI) {
     cv::FileStorage fs(calib_file.c_str(), cv::FileStorage::READ);
     LOG_ASSERT(fs.isOpened()) << "Failed to open calibration file at: " << calib_file;
     
@@ -98,29 +92,23 @@ MEICamera::MEICamera(std::string calib_file) :
 // 像素坐标转单位球面（unit sphere）
 Eigen::Vector3d MEICamera::unproject(double x_pix, double y_pix) const {
     Eigen::Vector3d xyz(0, 0, 1);
-    if(distortion_)
-    {
+    if (distortion_) {
         std::vector<cv::Point2f> pt_d, pt_u;
         pt_d.push_back(cv::Point2f(x_pix, y_pix));
         undistortPoints(pt_d, pt_u); 
         assert(pt_u.size() == 1);
         xyz[0] = (pt_u[0].x - cx_) / fx_;
         xyz[1] = (pt_u[0].y - cy_) / fy_;
-    } 
-    else
-    {
+    } else {
         xyz[0] = (x_pix - cx_) / fx_;
         xyz[1] = (y_pix - cy_) / fy_;
     }
 
     double x_u = xyz[0], y_u = xyz[1], lambda;
-    if(xi_ == 1)
-    {
+    if (xi_ == 1) {
         lambda = 2.0 / (x_u * x_u + y_u * y_u + 1.0);
-        xyz << lambda*x_u, lambda*y_u, lambda - 1.0;
-    }
-    else
-    {
+        xyz << lambda * x_u, lambda * y_u, lambda - 1.0;
+    } else {
         double r_2 = x_u*x_u + y_u*y_u;
         lambda = (xi_ + sqrt(1.0 + (1.0 - xi_*xi_)*(r_2)))/(r_2 + 1.0);
         xyz << lambda*x_u, lambda*y_u, lambda - xi_;
@@ -131,8 +119,7 @@ Eigen::Vector3d MEICamera::unproject(double x_pix, double y_pix) const {
 
 Eigen::Vector3d MEICamera::unproject(const Eigen::Vector2d& pix) const { return unproject(pix[0], pix[1]); }
 
-Eigen::Vector2d MEICamera::project(double x, double y, double z) const
-{
+Eigen::Vector2d MEICamera::project(double x, double y, double z) const {
     Eigen::Vector3d X(x, y, z);
     X.normalize();
     double x_u, y_u;
@@ -140,8 +127,7 @@ Eigen::Vector2d MEICamera::project(double x, double y, double z) const
     y_u = X[1]/(X[2] + xi_);    
 
     Vector2d px(x_u, y_u);
-    if(distortion_)
-    {
+    if (distortion_) {
         const double x2 = x_u * x_u;
         const double y2 = y_u * y_u;
         const double r2 = x2 + y2;
@@ -159,21 +145,15 @@ Eigen::Vector2d MEICamera::project(double x, double y, double z) const
     return px;
 }
 
-Eigen::Vector2d MEICamera::project(const Eigen::Vector3d &xyz) const
-{
-    return project(xyz[0], xyz[1], xyz[2]);
-}
+Eigen::Vector2d MEICamera::project(const Eigen::Vector3d& xyz) const { return project(xyz[0], xyz[1], xyz[2]); }
 
 //! 感觉去畸变的过程和xi那些操作无关的, 不需要转到Xs, 
 // 迭代思想
-void MEICamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const
-{
+void MEICamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist, std::vector<cv::Point2f>& pts_udist) const {
     if(0)
         cv::omnidir::undistortPoints(pts_dist, pts_udist, K_, D_, xi_, cv::Mat()); // 和omnidir的一样
-    else
-    {   
-        for(auto it : pts_dist)
-        {
+    else {
+        for (auto it : pts_dist) {
             double x_dist, y_dist, r2, r4, a1, a2, a3, cdest_inv, deltaX, deltaY;
             double x_corr, y_corr;
             x_dist = (it.x - getCx()) / getFx();
@@ -204,7 +184,6 @@ void MEICamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::v
             double y_undist = y_corr; // * fy() + cy();
 
             pts_udist.push_back(cv::Point2f(x_undist, y_undist));
-
         }
     }
     assert(pts_dist.size() == pts_udist.size());
@@ -226,18 +205,16 @@ void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) con
     cv::Mat mapX = cv::Mat::zeros(image_size, CV_32F);
     cv::Mat mapY = cv::Mat::zeros(image_size, CV_32F);
 
-    for(int i=0; i<height_; i++)
-    {
-        for(int j=0; j<width_; j++)
-        {
+    for (int i = 0; i < height_; i++) {
+        for (int j = 0; j < width_; j++) {
             cv::Point2f pt_undist, pt_dist;  // point on unit plane
-            pt_undist.x = (j - K_new.at<double>(0,2)) / K_new.at<double>(0,0);
-            pt_undist.y = (i - K_new.at<double>(1,2)) / K_new.at<double>(1,1);
-            
+            pt_undist.x = (j - K_new.at<double>(0, 2)) / K_new.at<double>(0, 0);
+            pt_undist.y = (i - K_new.at<double>(1, 2)) / K_new.at<double>(1, 1);
+
             //! 通过这个可以理解了，这个射影矫正的过程，就是把原来透视球镜成像原理映射到 pinhole 上的一个过程
             //! 所以最开始的相机内参是要自己求得，原来的参数是omni模型的
-            //! 而且相机成像为那种球状，不是因为畸变，而是本身的成像原理，因此开始无畸变的不需要xi。 
-            
+            //! 而且相机成像为那种球状，不是因为畸变，而是本身的成像原理，因此开始无畸变的不需要xi。
+
             //? 以下是错误的，留着引以为戒
             // double x_u = pt_undist.x, y_u = pt_undist.y;
             // double r_2 = x_u*x_u + y_u*y_u;
@@ -249,26 +226,26 @@ void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) con
             // double Xs = xyz[0];
             // double Ys = xyz[1];
             // double Zs = xyz[2];
-            
+
             // pt_undist 是世界坐标下的， 理解重点！
-            double r = sqrt(pt_undist.x*pt_undist.x + pt_undist.y*pt_undist.y + 1);
-            double Xs = pt_undist.x/r;
-            double Ys = pt_undist.y/r;
-            double Zs = 1/r;
+            double r = sqrt(pt_undist.x * pt_undist.x + pt_undist.y * pt_undist.y + 1);
+            double Xs = pt_undist.x / r;
+            double Ys = pt_undist.y / r;
+            double Zs = 1 / r;
 
             double x, y, r2, r4, a1, a2, a3, cdist, xd, yd;
-            x = Xs/(Zs + xi_);
-            y = Ys/(Zs + xi_);
-            r2 = x*x + y*y;
-            r4 = r2*r2;
-            a1 = 2*x*y;
-            a2 = r2 + 2*x*x;
-            a3 = r2 + 2*y*y;
-            cdist = 1 +D_.at<double>(0)*r2 + D_.at<double>(1)*r4;
-            pt_dist.x = x*cdist + D_.at<double>(2)*a1 + D_.at<double>(3)*a2;
-            pt_dist.y = y*cdist + D_.at<double>(2)*a3 + D_.at<double>(3)*a1;
-            xd = pt_dist.x*fx_ + cx_;
-            yd = pt_dist.y*fy_ + cy_;
+            x = Xs / (Zs + xi_);
+            y = Ys / (Zs + xi_);
+            r2 = x * x + y * y;
+            r4 = r2 * r2;
+            a1 = 2 * x * y;
+            a2 = r2 + 2 * x * x;
+            a3 = r2 + 2 * y * y;
+            cdist = 1 + D_.at<double>(0) * r2 + D_.at<double>(1) * r4;
+            pt_dist.x = x * cdist + D_.at<double>(2) * a1 + D_.at<double>(3) * a2;
+            pt_dist.y = y * cdist + D_.at<double>(2) * a3 + D_.at<double>(3) * a1;
+            xd = pt_dist.x * fx_ + cx_;
+            yd = pt_dist.y * fy_ + cy_;
 
             mapX.at<float>(j, i) = xd;
             mapY.at<float>(j, i) = yd;
@@ -276,8 +253,7 @@ void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) con
 #ifndef USE_REMAP
             Eigen::Vector2d pix_dist;
             pix_dist << xd, yd;
-            if(isInFrame(pix_dist, 1))
-            {
+            if (isInFrame(pix_dist, 1)) {
                 // 双线性插值
                 int xi, yi;
                 float dx, dy;
@@ -286,19 +262,16 @@ void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) con
                 dx = xd - xi;
                 dy = yd - yi;
 
-                img_undist.at<uchar>(j, i) = ( (1-dx)*(1-dy)*img_dist.at<uchar>(xi, yi) + 
-                                             dx*(1-dy)*img_dist.at<uchar>(xi+1, yi) + 
-                                             (1-dx)*dy*img_dist.at<uchar>(xi, yi+1) +
-                                             dx*dy*img_dist.at<uchar>(xi+1, yi+1) );
-            }
-            else
-            {
+                img_undist.at<uchar>(j, i) =
+                    ((1 - dx) * (1 - dy) * img_dist.at<uchar>(xi, yi) + dx * (1 - dy) * img_dist.at<uchar>(xi + 1, yi) +
+                     (1 - dx) * dy * img_dist.at<uchar>(xi, yi + 1) + dx * dy * img_dist.at<uchar>(xi + 1, yi + 1));
+            } else {
                 img_undist.at<uchar>(j, i) = 0;
             }
-#endif            
-            }
+#endif
         }
-        
+    }
+
 #ifdef USE_REMAP
         std::cout<<"Done by remap !!!"<<std::endl;
         cv::Mat map1, map2;
@@ -307,4 +280,4 @@ void MEICamera::undistortImage(const cv::Mat& img_dist, cv::Mat& img_undist) con
 #endif
 }
 
-} // end namespace 
+}  // namespace camera_model

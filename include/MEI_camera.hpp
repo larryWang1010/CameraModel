@@ -32,17 +32,18 @@ public:
 
     virtual void undistortImage(const cv::Mat& img_dist, cv::Mat& img_udist) const;
 
-    inline static MEICamera::Ptr create(int width, int height, double xi, double fx, double fy, double cx, double cy, double k1 = 0.0, double k2 = 0.0, double p1 = 0.0, double p2 = 0.0)
-    {return MEICamera::Ptr(new MEICamera(width, height, xi, fx, fy, cx, cy, k1, k2, p1, p2));}
+    inline static MEICamera::Ptr create(int width, int height, double xi, double fx, double fy, double cx, double cy,
+                                        double k1 = 0.0, double k2 = 0.0, double p1 = 0.0, double p2 = 0.0) {
+        return MEICamera::Ptr(new MEICamera(width, height, xi, fx, fy, cx, cy, k1, k2, p1, p2));
+    }
 
-    inline static MEICamera::Ptr create(int width, int height, double xi, const cv::Mat& K, const cv::Mat& D)
-    {return MEICamera::Ptr(new MEICamera(width, height, xi, K, D));}
+    inline static MEICamera::Ptr create(int width, int height, double xi, const cv::Mat& K, const cv::Mat& D) {
+        return MEICamera::Ptr(new MEICamera(width, height, xi, K, D));
+    }
 
-    inline static MEICamera::Ptr create(std::string calib_file)
-    {return MEICamera::Ptr(new MEICamera(calib_file));}
+    inline static MEICamera::Ptr create(std::string calib_file) { return MEICamera::Ptr(new MEICamera(calib_file)); }
 
-private:
-
+   private:
     MEICamera(int width, int height, double xi, double fx, double fy, double cx, double cy,
                 double k1 = 0.0, double k2 = 0.0, double p1 = 0.0, double p2 = 0.0);
 

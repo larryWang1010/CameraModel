@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations -Wno-
 option(BUILD_ENABLE_DEBUG "Enable debug mode" ON)
 option(BUILD_ENABLE_VISUAL "Enable visualization mode" OFF)
 option(BUILD_ENABLE_OPENCV "Enable using opencv" OFF)
+
 # debug
 if(BUILD_ENABLE_DEBUG)
     add_definitions(-DENABLE_DEBUG)

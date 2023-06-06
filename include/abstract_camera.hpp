@@ -85,16 +85,14 @@ public:
 
     virtual void undistortImage(const cv::Mat& img_dist, cv::Mat& img_udist) const;
 
-    inline bool isInFrame(const Vector2d &obs, int boundary=0) const
-    {
+    inline bool isInFrame(const Vector2d& obs, int boundary = 0) const {
         if (obs[0] >= boundary && obs[0] < getWidth() - boundary && obs[1] >= boundary &&
             obs[1] < getHeight() - boundary)
             return true;
         return false;
     }
 
-    inline bool isInFrame(const Vector2d &obs, int boundary, int level) const
-    {
+    inline bool isInFrame(const Vector2d& obs, int boundary, int level) const {
         if (obs[0] >= boundary && obs[0] < (getWidth() >> level) - boundary && obs[1] >= boundary &&
             obs[1] < (getHeight() >> level) - boundary)
             return true;

@@ -16,12 +16,10 @@ static std::mt19937_64 rd;
 // std::numeric_limits<double>::max()));
 static std::uniform_real_distribution<> distribution(0.0, std::nextafter(1, std::numeric_limits<double>::max()));
 
-inline int Rand(int min, int max)
-{ return (((double)distribution(rd) * (max - min + 1))) + min;}
+inline int Rand(int min, int max) { return (((double)distribution(rd) * (max - min + 1))) + min; }
 
 // record points to Log
-void writePointsToLog(const std::vector<cv::Point2f> &input_point, const std::string message)
-{
+void writePointsToLog(const std::vector<cv::Point2f>& input_point, const std::string message) {
     LOG(INFO) << message << " : " << std::endl;    
     for_each(input_point.begin(), input_point.end(), [](const cv::Point2f& it){ 
         LOG(INFO) << "(" << (it).x << ", "<<(it).y << ")";
@@ -29,9 +27,8 @@ void writePointsToLog(const std::vector<cv::Point2f> &input_point, const std::st
 }
 
 // By Opencv for Omnidirection camera (MEI)
-void undistortOmniByOpencv(cv::Mat& src, std::vector<cv::Point2f> &input_point, 
-                        const cv::Mat &K, const cv::Mat &D, const double xi, const int width, const int height)
-{
+void undistortOmniByOpencv(cv::Mat& src, std::vector<cv::Point2f>& input_point, const cv::Mat& K, const cv::Mat& D,
+                           const double xi, const int width, const int height) {
     //! rectify point to undistort
     std::vector<cv::Point2f> pts_undist;
     
@@ -70,9 +67,7 @@ void undistortOmniByOpencv(cv::Mat& src, std::vector<cv::Point2f> &input_point,
     // RECTIFY_LONGLATI：矫正成类似世界地图的经纬图，适合立体重建。
 }
 
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;
     FLAGS_log_prefix = true;
@@ -90,15 +85,12 @@ int main(int argc, char *argv[])
     AbstractCamera::Ptr camera;
 
     AbstractCamera::Model model = AbstractCamera::checkCameraModel(calib_file);
-    if(AbstractCamera::Model::PINHOLE == model)
-    {
+    if (AbstractCamera::Model::PINHOLE == model) {
         PinholeCamera::Ptr pinhole_camera = PinholeCamera::create(calib_file);
         // 运行时期多态, 虚函数会根据指针来决定运行哪个
         camera = std::static_pointer_cast<AbstractCamera>(pinhole_camera); 
         model_name = "pinhole";
-    }
-    else if(AbstractCamera::Model::MEI == model)
-    {
+    } else if (AbstractCamera::Model::MEI == model) {
         MEICamera::Ptr mei_camera = MEICamera::create(calib_file);
         camera = std::static_pointer_cast<AbstractCamera>(mei_camera);
         model_name = "mei";
@@ -109,11 +101,10 @@ int main(int argc, char *argv[])
     std::vector<cv::Point2f> pts_dist, pts_undist;
 
     // test undistort points with 10 random pixels on image
-    for(int i=0; i<10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         pts_dist.push_back(cv::Point2i(Rand(10, camera->getWidth() - 10), Rand(10, camera->getHeight() - 10)));
     }
-    
+
     // write log
     std::string message_distpoint = "pixel coordinate generate randomly";
     writePointsToLog(pts_dist, message_distpoint);
@@ -126,9 +117,8 @@ int main(int argc, char *argv[])
     std::string message_undistpoint = "Undistorted Point by Mine";
     writePointsToLog(pts_undist, message_undistpoint);
 
-#ifdef ENABLE_DEBUG
-    if(AbstractCamera::Model::MEI == model)
-    {
+#ifdef ENABLE_OPENCV
+    if (AbstractCamera::Model::MEI == model) {
         undistortOmniByOpencv(src, pts_dist, camera->getK(), camera->getD(), camera->xi(), camera->getWidth(),
                               camera->getHeight());
     }
@@ -136,14 +126,10 @@ int main(int argc, char *argv[])
 
     size_t found = img_file.find_last_of(".");
     std::string name_front, name_back;
-    if(found + 1 != img_file.size())
-    {
+    if (found + 1 != img_file.size()) {
         name_front = img_file.substr(0, found);
         name_back = img_file.substr(found);
     }
-
-
-    std::string name_out = name_front + "_undist_"+model_name+name_back;
 
 #ifdef ENABLE_VISUAL
     std::cout << "front" << name_front << ", back" << name_back << std::endl;
@@ -151,5 +137,7 @@ int main(int argc, char *argv[])
     cv::imshow("UndistByMine", dst);
     cv::waitKey(10);
 #endif
-    cv::imwrite(name_out.c_str(), dst);  // 输出图片
+
+    std::string name_out = name_front + "_undist_" + model_name + name_back;
+    cv::imwrite(name_out.c_str(), dst);
 }
