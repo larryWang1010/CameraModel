@@ -160,8 +160,8 @@ Vector2d PinholeCamera::project(const Vector3d &xyz) const
 
 //@ 函数返回的点是在单位平面上的，不是在图像上的
 // pinhole + radtan（4参数） 为什么要用 fisheye 来处理（这不是针对鱼眼相机的吗？）
-void PinholeCamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const
-{
+void PinholeCamera::undistortPoints(const std::vector<cv::Point2f>& pts_dist,
+                                    std::vector<cv::Point2f>& pts_udist) const {
     if(0) // use opencv 
     {   
         cv::fisheye::undistortPoints(pts_dist, pts_udist, K_, D_); // 返回的不是图像上的， 是单位平面的。。。
@@ -215,19 +215,26 @@ void PinholeCamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, st
 
 void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) const
 {
-    if (1)  // use opencv
+    if (0)  // use opencv
     {
         cv::Mat map1, map2, K_new;
-        // cv::getOptimalNewCameraMatrix()
-        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new, 0.f);
+
 #ifdef ENABLE_DEBUG
-        std::cout << "K_ " << K_ << std::endl;
-        std::cout << "K_new " << K_new << std::endl;
+        double alpha = 0.0;
+        // TODO 没太明白为什么要获取新的内参？
+        K_new = cv::getOptimalNewCameraMatrix(K_, D_, cv::Size(width_, height_), alpha);
+#else
+        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new,
+                                                                0.f);
 #endif
-        // 以下两条语句的组合可以等同为  cv::undistort
+        // 以下两条语句的组合等同于下边调用cv::fisheye::undistortImage
         cv::fisheye::initUndistortRectifyMap(K_, D_, Mat(), K_new, cv::Size(width_, height_), CV_16SC2, map1, map2);
         cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);
-    } else {  //! 以下是和 K_new = K_ 一样， 说明畸变导致了相机内参有变化， 需要求出来这个变化
+        // cv::fisheye::undistortImage(img_dist, img_undist, K_, D_, K_new);
+        // cv::imshow("opencv undistortImage", img_undist);
+        // cv::waitKey(10);
+    } else {
+        //! 以下是和 K_new = K_ 一样， 说明畸变导致了相机内参有变化， 需要求出来这个变化
         assert(img_dist.type() == CV_8UC1);
         img_undist = cv::Mat(height_, width_, img_dist.type());
         
@@ -243,8 +250,10 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
 
 #ifdef _DEBUG_MODE_
         cv::Mat K_new;
-        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new, 0.f);
-        LOG(INFO) << "compute from opencv, new fx, fy, cx, cy" << K_new.at<double>(0,0) <<", "<< K_new.at<double>(1,1)<<", "<< K_new.at<double>(0,2)<<", "<< K_new.at<double>(1,2);
+        cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new,
+                                                                0.f);
+        LOG(INFO) << "compute from opencv, new fx,   fy, cx, cy" << K_new.at<double>(0, 0) << ", "
+                  << K_new.at<double>(1, 1) << ", " << K_new.at<double>(0, 2) << ", " << K_new.at<double>(1, 2);
 #endif
 
 // 以下两种方法都可。。。
@@ -375,7 +384,8 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
                 theta4 = theta2 * theta2;
                 theta6 = theta4 * theta2;
                 theta8 = theta4 * theta4;
-                thetad = theta * (1 + D_.at<double>(0) * theta2 + D_.at<double>(1) * theta4 + D_.at<double>(2) * theta6 + D_.at<double>(3) * theta8);
+                thetad = theta * (1 + D_.at<double>(0) * theta2 + D_.at<double>(1) * theta4 +
+                                  D_.at<double>(2) * theta6 + D_.at<double>(3) * theta8);
                 scaling = (r > 1e-8) ? thetad / r : 1.0;
                 xd = fx_*x*scaling + cx_;
                 yd = fy_*y*scaling + cy_;

@@ -15,7 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC ${COMPILER_WARNINGS} -p
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations -Wno-deprecated-declarations")
 
-option(BUILD_ENABLE_DEBUG "print debug info" OFF)
+option(BUILD_ENABLE_DEBUG "print debug info" ON)
 
 if(BUILD_ENABLE_DEBUG)
     add_definitions(-DENABLE_DEBUG)
