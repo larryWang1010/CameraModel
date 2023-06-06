@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
     writePointsToLog(pts_dist, message_distpoint);
 
     // by camera model
+    // 验证两个事情 1. 添加畸变的特征点，进行矫正，查看结果 2. 矫正畸变图像
     camera->undistortPoints(pts_dist, pts_undist);
     camera->undistortMat(src, dst);
 

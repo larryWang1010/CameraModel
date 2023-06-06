@@ -53,3 +53,40 @@ The images are stored in `data` folder.
 
 > hello.jpg   ==> hello_undist_mei.jpg
 
+
+
+## REFERENCE
+
+1. kb4模型
+```
+J. Kannala and S. Brandt (2006). A Generic Camera Model and Calibration Method for Conventional, Wide-Angle, and Fish-Eye Lenses, IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 28, no. 8, pp. 1335-1340
+```
+2. mei模型
+```
+Mei, Christopher, and Patrick Rives. "Single view point omnidirectional camera calibration from planar grids." Proceedings 2007 IEEE International Conference on Robotics and Automation. IEEE, 2007.
+```
+3. ds模型
+```
+Usenko, Vladyslav, Nikolaus Demmel, and Daniel Cremers. "The double sphere camera model." 2018 International Conference on 3D Vision (3DV). IEEE, 2018.
+```
+4. eucm模型
+```
+Khomutenko, Bogdan, Gaëtan Garcia, and Philippe Martinet. "An enhanced unified camera model." IEEE Robotics and Automation Letters 1.1 (2015): 137-144.
+```
+
+5. omni模型
+Scaramuzza, Davide, and Katsushi Ikeuchi. “Omnidirectional camera.” (2014): 552-560.
+
+
+
+Reference
+
+https://blog.51cto.com/u_13157605/6038101
+
+https://github.com/ethz-asl/kalibr/wiki/supported-models
+
+OpenCV中相机标定相关的文档
+
+https://docs.opencv.org/4.5.4/d9/d0c/group__calib3d.html
+https://docs.opencv.org/4.5.4/d4/d94/tutorial_camera_calibration.html
+

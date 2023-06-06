@@ -80,7 +80,8 @@ PinholeCamera::PinholeCamera(std::string calib_file) :
 
     //* distortion_coefficients 畸变系数
     cv::FileNode distortion_coefficients = fs["Camera.distortion_coefficients"];
-    LOG_ASSERT(distortion_coefficients.size() == 4) << "Failed to load Camera.distortion_coefficients with error size: " << distortion_coefficients.size();
+    LOG_ASSERT(distortion_coefficients.size() == 4)
+        << "Failed to load Camera.distortion_coefficients with error size: " << distortion_coefficients.size();
     k1_ = distortion_coefficients[0];
     k2_ = distortion_coefficients[1];
     p1_ = distortion_coefficients[2];
@@ -158,6 +159,7 @@ Vector2d PinholeCamera::project(const Vector3d &xyz) const
 }
 
 //@ 函数返回的点是在单位平面上的，不是在图像上的
+// pinhole + radtan（4参数） 为什么要用 fisheye 来处理（这不是针对鱼眼相机的吗？）
 void PinholeCamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, std::vector<cv::Point2f> &pts_udist) const
 {
     if(0) // use opencv 
@@ -213,16 +215,17 @@ void PinholeCamera::undistortPoints(const std::vector<cv::Point2f> &pts_dist, st
 
 void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) const
 {
-    if(0)  // use opencv
-    { 
+    if (1)  // use opencv
+    {
         cv::Mat map1, map2, K_new;
         // cv::getOptimalNewCameraMatrix()
         cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new, 0.f);
+        std::cout << "K_ " << K_ << std::endl;
+        std::cout << "K_new " << K_new << std::endl;
+        // 以下两条语句的组合可以等同为  cv::undistort
         cv::fisheye::initUndistortRectifyMap(K_, D_, Mat(), K_new, cv::Size(width_, height_), CV_16SC2, map1, map2);
-        cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);   
-    }
-    else
-    { //! 以下是和 K_new = K_ 一样， 说明畸变导致了相机内参有变化， 需要求出来这个变化
+        cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);
+    } else {  //! 以下是和 K_new = K_ 一样， 说明畸变导致了相机内参有变化， 需要求出来这个变化
         assert(img_dist.type() == CV_8UC1);
         img_undist = cv::Mat(height_, width_, img_dist.type());
         
@@ -396,9 +399,8 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
                 }
                 
             }
-        }    
+        }
     }
-    
 }
 
 
