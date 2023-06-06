@@ -221,6 +221,8 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
         cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_, D_, cv::Size(width_, height_), cv::noArray(), K_new,
                                                                 0.f);
 #endif
+        // std::cout << "K_ " << K_ << std::endl;
+
         // 以下两条语句的组合等同于下边调用cv::fisheye::undistortImage
         cv::fisheye::initUndistortRectifyMap(K_, D_, Mat(), K_new, cv::Size(width_, height_), CV_16SC2, map1, map2);
         cv::remap(img_dist, img_undist, map1, map2, cv::INTER_LINEAR);
@@ -252,8 +254,8 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
 
 // 以下两种方法都可。。。
 
-//! ******************************* 这是 Radtan 的计算方法（cv::）*******************************
-        // 这里取最小的一圈， 也可以取最大的
+        //! ******************************* 这是 Radtan 的计算方法（cv::）*******************************
+        // 这里取最小的一圈， 也可以取最大的, how to calculate new intern parameters?
         float u_0 = -FLT_MAX, u_1 = FLT_MAX, v_0 = -FLT_MAX, v_1 = FLT_MAX;
 
         for(int i=0; i<N; i++)
@@ -276,78 +278,75 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
         fy_new = height() / (v_1 - v_0);
         cx_new = -fx_new * (u_0) ;
         cy_new = -fy_new * (v_0) ;
+        LOG(INFO) << "New fx, fy, cx, cy " << fx_new << " " << fy_new << " " << cx_new << " " << cy_new;
+
+        //! **********************这是 EQUI 的计算方法（cv::fisheye)**********************
+        /* {
+                //计算均值
+                double mean_x, mean_y;
+                // assert(points_sample_undist.size() == 8);
+                for(auto it : points_sample_undist)
+                {
+                    mean_x += it.x;
+                    mean_y += it.y;
+                }
+                mean_x /= (N*N) ;
+                mean_y /= (N*N) ;
+
+        #ifdef _DEBUG_MODE_
+                LOG(INFO) << "mean_x " <<mean_x;
+                LOG(INFO) << "points_sample_undist[0].x " <<points_sample_undist[0].x;
+        #endif
+
+                // 计算比值
+                double aspect_ratio = fx_ / fy_;
+                mean_y *= aspect_ratio;  //bug 和opencv不同
+
+                for(int i=0; i<N*N; i++)
+                {
+                    points_sample_undist[i].y *= aspect_ratio;
+                }
+
+                // 计算范围
+                double minx = DBL_MAX, miny = DBL_MAX, maxx = -DBL_MAX, maxy = -DBL_MAX;
+                for(int i=0; i<N; ++i)
+                    for(int j=0; j<N; ++j)
+                    {
+                        if(j == 0 || j == N-1)
+                            minx = std::min(minx, std::abs(points_sample_undist[i*N+j].x - mean_x));
+                        if(i == 0 || i == N-1)
+                            miny = std::min(miny, std::abs(points_sample_undist[i*N+j].y - mean_y));
+                        maxx = std::max(maxx, std::abs(points_sample_undist[i*N+j].x - mean_x));
+                        maxy = std::max(maxy, std::abs(points_sample_undist[i*N+j].y - mean_y));
+                    }
 
 
+        #ifdef _DEBUG_MODE_
+                LOG(INFO) << "minx " <<minx;
+                LOG(INFO) << "miny " <<miny;
+        #endif
 
-//! **********************这是 EQUI 的计算方法（cv::fisheye)**********************
-/* {        
-        //计算均值
-        double mean_x, mean_y;
-        // assert(points_sample_undist.size() == 8);
-        for(auto it : points_sample_undist)
-        {
-            mean_x += it.x;
-            mean_y += it.y;
-        }
-        mean_x /= (N*N) ;
-        mean_y /= (N*N) ;
+                double f1 = width() * 0.5/(minx);
+                // double f2 = width() * 0.5/(maxx);
+                double f3 = height() * 0.5 * aspect_ratio/(miny);
+                // double f4 = height() * 0.5 * aspect_ratio/(maxy);
 
-#ifdef _DEBUG_MODE_
-        LOG(INFO) << "mean_x " <<mean_x;
-        LOG(INFO) << "points_sample_undist[0].x " <<points_sample_undist[0].x;
-#endif  
+                double f_max, fx_new, fy_new, cx_new, cy_new;
+                f_max = std::max(f1, f3);
+                fx_new = f_max;
+                fy_new = f_max / aspect_ratio;
+                cx_new = -mean_x * fx_new + width()*0.5;
+                cy_new = -mean_y * fy_new + height()*0.5;
 
-        // 计算比值
-        double aspect_ratio = fx_ / fy_;
-        mean_y *= aspect_ratio;  //bug 和opencv不同
+        #ifdef _DEBUG_MODE_
+                LOG(INFO) << "fx_new" << fx_new;
+                LOG(INFO) << "cx_new" << cx_new;
+        #endif
 
-        for(int i=0; i<N*N; i++)
-        {
-            points_sample_undist[i].y *= aspect_ratio;
-        }
+        } */
 
-        // 计算范围
-        double minx = DBL_MAX, miny = DBL_MAX, maxx = -DBL_MAX, maxy = -DBL_MAX;
-        for(int i=0; i<N; ++i)
-            for(int j=0; j<N; ++j) 
-            {
-                if(j == 0 || j == N-1)
-                    minx = std::min(minx, std::abs(points_sample_undist[i*N+j].x - mean_x)); 
-                if(i == 0 || i == N-1)
-                    miny = std::min(miny, std::abs(points_sample_undist[i*N+j].y - mean_y));
-                maxx = std::max(maxx, std::abs(points_sample_undist[i*N+j].x - mean_x));
-                maxy = std::max(maxy, std::abs(points_sample_undist[i*N+j].y - mean_y));
-            }
-
-        
-#ifdef _DEBUG_MODE_
-        LOG(INFO) << "minx " <<minx;
-        LOG(INFO) << "miny " <<miny;
-#endif  
-
-        double f1 = width() * 0.5/(minx);
-        // double f2 = width() * 0.5/(maxx);
-        double f3 = height() * 0.5 * aspect_ratio/(miny);
-        // double f4 = height() * 0.5 * aspect_ratio/(maxy);
-
-        double f_max, fx_new, fy_new, cx_new, cy_new;
-        f_max = std::max(f1, f3);
-        fx_new = f_max;
-        fy_new = f_max / aspect_ratio;
-        cx_new = -mean_x * fx_new + width()*0.5;
-        cy_new = -mean_y * fy_new + height()*0.5;
-
-#ifdef _DEBUG_MODE_
-        LOG(INFO) << "fx_new" << fx_new;
-        LOG(INFO) << "cx_new" << cx_new;
-#endif
-
-} */
-
-        for(int i=0; i<height_; i++)
-        {
-            for(int j=0; j<width_; j++)
-            {
+        for (int i = 0; i < height_; i++) {
+            for (int j = 0; j < width_; j++) {
                 cv::Point2f pt_undist, pt_dist;  // point on unit plane
                 pt_undist.x = (j - cx_new) / fx_new;
                 pt_undist.y = (i - cy_new) / fy_new;
@@ -395,15 +394,14 @@ void PinholeCamera::undistortMat(const cv::Mat &img_dist, cv::Mat &img_undist) c
                     dx = xd - xi;
                     dy = yd - yi;
 
-                    img_undist.at<uchar>(j, i) = ( (1-dx)*(1-dy)*img_dist.at<uchar>(xi, yi) + 
-                                                 dx*(1-dy)*img_dist.at<uchar>(xi+1, yi) + 
-                                                 (1-dx)*dy*img_dist.at<uchar>(xi, yi+1) +
-                                                 dx*dy*img_dist.at<uchar>(xi+1, yi+1) );
+                    img_undist.at<uchar>(j, i) =
+                        ((1 - dx) * (1 - dy) * img_dist.at<uchar>(xi, yi) +
+                         dx * (1 - dy) * img_dist.at<uchar>(xi + 1, yi) +
+                         (1 - dx) * dy * img_dist.at<uchar>(xi, yi + 1) + dx * dy * img_dist.at<uchar>(xi + 1, yi + 1));
                 }else
                 {
                     img_undist.at<uchar>(j, i) = 0;
                 }
-                
             }
         }
     }
